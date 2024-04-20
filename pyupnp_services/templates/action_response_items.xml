@@ -1,0 +1,13 @@
+{% spaceless %}
+<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+    {% for en in result_entries %}
+    <{{ en.type.0 }} id="{{ en.id }}" parentID="{{ en.parent }}" {% if en.type.0 == "container" %}childCount="1"{% endif %} restricted="1">
+        <dc:title>{{ en.title }}</dc:title>
+        <upnp:class>object.{{ en.type.0 }}{{ en.type.1 }}</upnp:class>
+        {% if en.type.0 == "item" %}
+        <res protocolInfo="http-get:*:{{ en.mimetype }}:*" >{{ en.url }}</res>
+        {% endif %}
+    </{{ en.type.0 }}>
+    {% endfor %}
+</DIDL-Lite>
+{% endspaceless %}

@@ -1,0 +1,53 @@
+services:
+  upnp:
+    build:
+      context: .
+      args:
+        DATABASE_URL: database
+    volumes:
+      - media-disk:/pyupnp-server/media/disk
+    ports:
+      - 9000:9000
+  # ssdp:
+  #   image: lucifiel1618/pyssdp-server
+  #   network_mode: host
+  #   ports:
+  #     - 1900:1900/udp
+  #     - 1900:1900/tcp
+  #   networks:
+  #     - host
+  #     vlan:
+  #       ipv4_address: 192.168.1.101
+  database:
+    build: 
+      context: ../python-slideshow
+      args:
+        SERVER: true
+    volumes:
+      - media-disk:/python-slideshow/media/disk
+      - db-data:/python-slideshow/media/_temp
+    ports:
+      - 10011:10011
+  # database:
+  #   image: lucifiel1618/python-slideshow
+
+volumes:
+  db-data:
+  media-disk:
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.1.111,nolock,ro"
+      device: ":/nfs/luc/Downloads/"
+# networks:
+#   host:
+#     name: host
+#     external: true
+  # vlan:
+  #   driver: macvlan
+  #   driver_opts:
+  #     parent: eth0
+  #   ipam:
+  #     config:
+  #       - subnet: 192.168.1.0/24
+  #         ip_range: 192.168.1.0/24
+  #         gateway: 192.168.1.1

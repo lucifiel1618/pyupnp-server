@@ -1,0 +1,42 @@
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <actionList>
+        {% for action, argumentlist in action_argumentlist_pairs %}
+        <action>
+            {% for key, value in action.items %}
+            <{{ key }}>{{ value }}</{{ key }}>
+            {% endfor %}
+            <argumentList>
+                {% for argument in argumentlist %}
+                <argument>
+                    {% for key, value in argument.items %}
+                    <{{ key }}>{{ value }}</{{ key }}>
+                    {% endfor %}
+                </argument>
+                {% endfor %}
+            </argumentList>
+        </action>
+        {% endfor %}
+    </actionList>
+    <serviceStateTable>
+        {% for sendevent, statevar, allowedvaluelist in statevar_allowedvaluelist_pairs %}
+        <stateVariable sendEvents="{{ sendevent }}">
+        {% for key, value in statevar.items %}
+            <{{ key }}>{{ value }}</{{ key }}>
+        {% endfor %}
+        {% if allowedvaluelist %}
+        <allowedValueList>
+        {% for allowedvalue in allowedvaluelist %}
+        {% for key, value in allowedvalue.items %}
+            <{{ key }}>{{ value }}</{{ key }}>
+        {% endfor %}
+        {% endfor %}
+        </allowedValueList>
+        {% endif %}
+        </stateVariable>
+        {% endfor %}
+    </serviceStateTable>
+</scpd>

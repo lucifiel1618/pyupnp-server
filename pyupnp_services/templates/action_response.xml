@@ -1,0 +1,6 @@
+{% spaceless %}
+<Result>{{ action_response_items }}</Result>
+{% for tag, text in text_entries.items %}
+<{{ tag }}>{{ text }}</{{ tag }}>
+{% endfor %}
+{% endspaceless %}

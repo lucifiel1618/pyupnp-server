@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+    <specVersion>
+        <major>2</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+        {% for key, value in device_detail.items %}
+        <{{ key }}>{{ value }}</{{ key }}>{% endfor %}
+
+        <!-- <iconList>
+        <icon>
+        <mimetype>image/format</mimetype>
+        <width>horizontal pixels</width>
+        <height>vertical pixels</height>
+        <depth>color depth</depth>
+        <url>URL to icon</url>
+        </icon> -->
+        <!-- XML to declare other icons, if any, go here -->
+        <!-- </iconList> -->
+        <serviceList>
+            {% for service_detail in service_details %}
+            <service>
+                {% for key, value in service_detail.items %}
+                <{{ key }}>{{ value }}</{{ key }}>
+                {% endfor %}
+            </service>
+            {% endfor %}
+        <!-- Declarations for other services defined by a UPnP Forum working committee
+        (if any) go here -->
+        <!-- Declarations for other services added by UPnP vendor (if any) go here -->
+        </serviceList>
+        <deviceList>
+        <!-- Description of embedded devices defined by a UPnP Forum working committee
+        (if any) go here -->
+        <!-- Description of embedded devices added by UPnP vendor (if any) go here -->
+        </deviceList>
+    </device>
+</root>

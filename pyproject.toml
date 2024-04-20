@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "pyupnp-server"
+authors = [
+    {name = "Luc", email = "lucifiel1618@gmail.com"},
+]
+description = "A Django-based UPnP (Universal Plug and Play) Server"
+readme = "README.md"
+requires-python = ">=3.11"
+version = "1.0.0"
+
+dependencies = [
+    "django",
+    "django-filebrowser"
+]
+
+[project.scripts]
+manage = "pyupnp_server.manage:main"
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.setuptools.package-data]
+pyupnp_services = ["templates/*.xml"]
