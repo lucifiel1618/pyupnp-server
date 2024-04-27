@@ -9,7 +9,7 @@ authors = [
 description = "A Django-based UPnP (Universal Plug and Play) Server"
 readme = "README.md"
 requires-python = ">=3.11"
-version = "1.0.0"
+version = "1.1.0"
 
 dependencies = [
     "django",

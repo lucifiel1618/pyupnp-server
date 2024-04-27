@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: upnp-server-pvc
+spec:
+  storageClassName: ""
+  volumeName: upnp-server-pv
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 10Gi # Adjust storage size as needed

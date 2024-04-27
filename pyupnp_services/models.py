@@ -1,6 +1,7 @@
 import platform
 from typing import Self
 from django.db import models
+from django.conf import settings
 
 
 class Device(models.Model):
@@ -23,6 +24,9 @@ class Device(models.Model):
     )
     UPC = models.CharField(verbose_name='Universal Product Code', max_length=50)
     presentationURL = models.URLField(default='https://placeholder.com')
+
+    def __str__(self) -> str:
+        return self.friendlyName
 
 
 class Service(models.Model):
@@ -48,11 +52,17 @@ class Service(models.Model):
         service.save()
         return service
 
+    def __str__(self) -> str:
+        return self.serviceType
+
 
 class Action(models.Model):
     name = models.CharField(max_length=100)
 
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Argument(models.Model):
@@ -61,6 +71,9 @@ class Argument(models.Model):
     relatedStateVariable = models.CharField(max_length=100)  # Assuming related state variable name is stored
 
     action = models.ForeignKey(Action, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name
 
     def parse(self, value: str):
         statevar = self.action.service.statevariable_set.get(name=self.relatedStateVariable)
@@ -82,8 +95,35 @@ class StateVariable(models.Model):
 
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class AllowedValue(models.Model):
     allowedValue = models.CharField(max_length=100)
 
     stateVariable = models.ForeignKey(StateVariable, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.allowedValue
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    delay = models.IntegerField(blank=True, null=True)
+    delay_default = models.IntegerField(default=1000)
+    rate = models.FloatField(blank=True, null=True)
+    rate_default = models.FloatField(default=5.)
+    aspect = models.CharField(max_length=10, blank=True, null=True)
+    aspect_default = models.CharField(max_length=10, default='16X9')
+
+    def __str__(self) -> str:
+        return self.user.username
+
+
+class Location(models.Model):
+    ip_address = models.CharField(max_length=15)
+    default_user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, on_delete=models.DO_NOTHING)
+
+    def __str__(self) -> str:
+        return self.ip_address

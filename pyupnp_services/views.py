@@ -4,9 +4,10 @@ import xml.etree.cElementTree as ElementTree
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse, FileResponse
 from django.utils.html import escape
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
+import filebrowser.base
 
 from . import models
 from . import services
@@ -81,3 +82,11 @@ def service_control(request: HttpRequest, device_id: int, service_id: int) -> Ht
 @csrf_exempt
 def service_event(request: HttpRequest, device_id: int, service_id: int) -> HttpResponse:
     raise NotImplementedError
+
+
+def resource_access(request: HttpRequest, path: str) -> HttpResponse:
+    host = request.get_host()
+    fileobject = filebrowser.base.FileObject(path)
+    services.Entry.set_base_url(host)
+    url = services.Entry.get_fileobject_url(fileobject)
+    return redirect(url)

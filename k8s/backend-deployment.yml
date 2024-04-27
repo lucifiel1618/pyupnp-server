@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      app: upnp-server
+      tier: backend
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: upnp-server
+        tier: backend
+        track: stable
+    spec:
+      containers:
+        - name: upnp-server-backend
+          image: lucifiel1618/python-slideshow:amd64
+          # imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: media-disk
+              mountPath: /python-slideshow/media/disk
+              readOnly: true
+            - name: db-data
+              mountPath: /python-slideshow/media/_temp
+          resources:
+          # Resource request and limits apply to each container,
+          # not to the whole Job
+            requests:
+              cpu: 500m
+              memory: 1000Mi
+            limits:
+              cpu: 4000m
+              memory: 1000Mi
+          ports:
+            - name: http
+              containerPort: 10011
+              hostPort: 10011
+      volumes:
+      - name: media-disk
+        persistentVolumeClaim:
+          claimName: upnp-server-pvc
+      - name: db-data
+        emptyDir:
+          sizeLimit: 50Gi

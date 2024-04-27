@@ -1,5 +1,4 @@
 import functools
-import logging
 from pathlib import Path
 import re
 import dataclasses
@@ -13,10 +12,6 @@ import filebrowser.sites
 import filebrowser.base
 
 from .models import Device, Service
-
-logger = logging.getLogger(__name__)
-logger.setLevel('DEBUG')
-logger.info('services?')
 
 
 def _get_model_fields(model, *, excluded=set()) -> dict[str, Any]:
@@ -115,6 +110,13 @@ class Entry:
         return ''.join(Entry._get_object_id_parts(p.parent, root)), f'${p.stat().st_ino}'
 
     @classmethod
+    def set_base_url(cls, base_url: str) -> None:
+        parsed = urlparse(f'//{base_url}')
+        if parsed.port is not None:
+            parsed = parsed._replace(netloc=parsed.netloc[:-(1 + len(str(parsed.port)))])
+        cls.BASE_URL = parsed.netloc
+
+    @classmethod
     def get_object_id_parts(cls, p: Path) -> tuple[str, str]:
         return cls._get_object_id_parts(p, cls.ROOT_PATH)
 
@@ -151,17 +153,22 @@ class Entry:
             )
         return self
 
+    @staticmethod
+    @functools.lru_cache(maxsize=1)
+    def parse_location(url: str, base_url: Optional[str] = None) -> ParseResult:
+        parsed_location = urlparse(url)
+        hostname = parsed_location.hostname
+        if base_url is not None and hostname == '0.0.0.0':
+            parsed_location = parsed_location._replace(
+                netloc=f'{base_url}{parsed_location.netloc[len(hostname):]}'
+            )
+        return parsed_location
+
     @classmethod
     def get_fileobject_url(cls, fileobject: filebrowser.base.FileObject) -> str:
-        parsed_location = urlparse(settings.DATABASE_URL)
-        hostname = parsed_location.hostname
-        if cls.BASE_URL is not None and hostname == '0.0.0.0':
-            parsed_location = parsed_location._replace(
-                netloc=f'{cls.BASE_URL}{parsed_location.netloc[len(hostname):]}'
-            )
-        path = str(Path(parsed_location.path, quote(str(Path(fileobject.path).relative_to(cls.ROOT_PATH)))))
-        url = parsed_location._replace(path=path).geturl()
-        logger.info(f'{url=}')
+        parsed_location = cls.parse_location(settings.DATABASE_URL, cls.BASE_URL)
+        path = Path(parsed_location.path, quote(fileobject.path, safe=''))
+        url = parsed_location._replace(path=str(path)).geturl()
         return url
 
     @classmethod
@@ -217,10 +224,8 @@ def control_browse(
         logger.warn(f'Browse Control recieves unknown arugment: `{arg_name} = {arg_v}`')
     entries: list[Entry] = []
 
-    parsed = urlparse(f'//{base_url}')
-    if parsed.port is not None:
-        parsed = parsed._replace(netloc=parsed.netloc[:-(1 + len(str(parsed.port)))])
-    Entry.BASE_URL = parsed.netloc
+    if base_url is not None:
+        Entry.set_base_url(base_url)
 
     if BrowseFlag == 'BrowseDirectChildren':
         parent_en = Entry.from_object_id(ObjectID)

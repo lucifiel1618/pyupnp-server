@@ -273,4 +273,7 @@ $RECYCLE.BIN/
 Dockerfile
 compose.yaml
 
+### Kubernetes ###
+k8s/
+
 ### Project ###
